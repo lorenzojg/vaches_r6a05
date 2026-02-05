@@ -1,4 +1,4 @@
-from vaches.exceptions.exception import *
+from vaches.exception import InvalidVacheException
 from nourriture.TypeNourriture import TypeNourriture
 
 class Vache :
@@ -12,7 +12,7 @@ class Vache :
 
     def __init__(self, petit_nom:str=None, poids:float=None, age:int=None): # type: ignore
         if petit_nom == None or petit_nom == "" :
-            raise InvalidVacheException
+            raise InvalidVacheException("Le petit nom de la vache ne peut pas être vide ou None.")
         else :
             is_correct_name = False
             petit_nom_length = len(petit_nom)
@@ -21,12 +21,12 @@ class Vache :
                     is_correct_name = True
             
             if not is_correct_name :
-                raise InvalidVacheException
+                raise InvalidVacheException("Le petit nom de la vache doit contenir au moins un caractère autre que les espaces, les tabulations ou les sauts de ligne.")
 
         if age < 0 or age > Vache.AGE_MAX :
-            raise InvalidVacheException
+            raise InvalidVacheException("Age de la vache doit être compris entre 0 et " + str(Vache.AGE_MAX) + " ans.")
         elif poids < 0 :
-            raise InvalidVacheException
+            raise InvalidVacheException("Poids de la vache doit être positif.")
     
         self._id = Vache.NEXT_ID
         Vache.NEXT_ID += 1
@@ -35,6 +35,9 @@ class Vache :
         self._age = age
         self._panse = float(0)
         return
+    
+    def __str__(self) -> str:
+        return "Vache " + str(self._id) + " : " + self._petit_nom + "\nPoids : " + str(self._poids) + " kg\nAge : " + str(self._age) + " ans\nPanse : " + str(self._panse) + " litres"
     
     def brouter(self, quantite:float=None, nourriture:TypeNourriture=None): # type: ignore
         if quantite is None :
@@ -49,35 +52,39 @@ class Vache :
             else :
                 raise InvalidVacheException
     
+
+    def _valider_rumination_possible(self):
+        if self._panse <= 0.0 :
+            raise InvalidVacheException("Impossible de ruminer : la panse est vide.")
+
     def ruminer(self):
-        self._valider_rumination_possible
+        self._valider_rumination_possible()
         panse_avant = self._panse
         gain = Vache.RENDEMENT_RUMINATION * panse_avant
         self._poids += gain
+        self._panse = 0.0
+
         lait = self._calculer_lait(panse_avant)
         self._stocker_lait(lait)
         self._post_rumination(panse_avant,lait)
 
-    def _valider_rumination_possible(self):
-        if not self._panse > float(0) :
-            raise InvalidVacheException
 
     # Hooks 
     def _calculer_lait(self,panse:float) -> float :
-        return -10
+        return 0.0
 
     def _stocker_lait(self,quantite_lait:float) -> None :
         pass
 
     def _post_rumination(self,panse_avant:float=None,lait:float=None) -> None : # type: ignore
-        self._panse = 0
+        pass
     #---
 
     def vieillir(self):
         if self._age < Vache.AGE_MAX :
             self._age += 1
         else :
-            raise InvalidVacheException
+            raise InvalidVacheException("Impossible de vieillir : la vache a déjà atteint l'âge maximum de " + str(Vache.AGE_MAX) + " ans.")
 
     @property
     def getId(self) -> int :

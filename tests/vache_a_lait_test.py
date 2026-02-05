@@ -1,6 +1,7 @@
+
 import pytest
 
-from vaches.exceptions import exception
+from vaches.exception import InvalidVacheException
 from vaches.vache_a_lait import VacheALait
 
 
@@ -16,7 +17,7 @@ def test_should_start_with_empty_panse_given_new_vache_a_lait():
     assert vache._panse == 0
 
 
-def test_should_increase__lait_disponible_given_positive_panse_when_ruminer():
+def test_should_increase_lait_disponible_given_positive_panse_when_ruminer():
     # Arrange
     vache = VacheALait(petit_nom="Lola", poids=500.0, age=5)
     vache.brouter(10.0)
@@ -35,7 +36,7 @@ def test_should_increase_lait_total_produit_given_positive_panse_when_ruminer():
 
     # Act
     vache.ruminer()
-    actual = vache.lait_total_produit
+    actual = vache._lait_total_produit
     expected = VacheALait.RENDEMENT_LAIT * 10.0
 
     # Assert (1 assertion métier)
@@ -49,7 +50,7 @@ def test_should_return_lait_produced_given_positive_panse_when_ruminer():
 
     # Act
     vache.ruminer()
-    actual = vache.lait_total_produit
+    actual = vache._lait_total_produit
     expected = VacheALait.RENDEMENT_LAIT * 10.0
 
     # Assert (1 assertion métier)
@@ -61,11 +62,11 @@ def test_should_raise_invalid_vache_exception_given_empty_panse_when_ruminer():
     vache = VacheALait(petit_nom="Lola", poids=500.0, age=5)
 
     # Act / Assert
-    with pytest.raises(exception):
+    with pytest.raises(InvalidVacheException):
         vache.ruminer()
 
 
-def test_should_accumulate__lait_disponible_given_two_ruminations():
+def test_should_accumulate_lait_disponible_given_two_ruminations():
     # Arrange
     vache = VacheALait(petit_nom="Lola", poids=500.0, age=5)
 
@@ -85,7 +86,7 @@ def test_should_accumulate__lait_disponible_given_two_ruminations():
 # TRAITE
 # -------------------------
 
-def test_should_decrease__lait_disponible_given_valid_litres_when_traire():
+def test_should_decrease_lait_disponible_given_valid_litres_when_traire():
     # Arrange
     vache = VacheALait(petit_nom="Lola", poids=500.0, age=5)
     vache.brouter(10.0)
@@ -121,7 +122,7 @@ def test_should_increase_lait_total_traite_given_valid_litres_when_traire():
     vache.traire(3.0)
 
     # Assert (1 assertion métier)
-    assert vache.lait_total_traite == 3.0
+    assert vache._lait_total_traite == 3.0
 
 
 def test_should_accumulate_lait_total_traite_given_two_traite_operations():
@@ -135,7 +136,7 @@ def test_should_accumulate_lait_total_traite_given_two_traite_operations():
     vache.traire(3.0)
 
     # Assert (1 assertion métier)
-    assert vache.lait_total_traite == 5.0
+    assert vache._lait_total_traite == 5.0
 
 
 @pytest.mark.parametrize("litres", [0.0, -1.0])
@@ -146,18 +147,18 @@ def test_should_raise_invalid_vache_exception_given_non_positive_litres_when_tra
     vache.ruminer()
 
     # Act / Assert
-    with pytest.raises(exception):
+    with pytest.raises(InvalidVacheException):
         vache.traire(litres)
 
 
-def test_should_raise_invalid_vache_exception_given_litres_greater_than__lait_disponible_when_traire():
+def test_should_raise_invalid_vache_exception_given_litres_greater_than_lait_disponible_when_traire():
     # Arrange
     vache = VacheALait(petit_nom="Lola", poids=500.0, age=5)
     vache.brouter(10.0)
     vache.ruminer()
 
     # Act / Assert
-    with pytest.raises(exception):
+    with pytest.raises(InvalidVacheException):
         vache.traire(vache._lait_disponible + 0.0001)
 
 
@@ -170,7 +171,7 @@ def test_should_raise_invalid_vache_exception_given_typed_food_when_brouter_on_v
     vache = VacheALait(petit_nom="Lola", poids=500.0, age=5)
 
     # Act / Assert
-    with pytest.raises(exception):
+    with pytest.raises(InvalidVacheException):
         vache.brouter(2.0, nourriture="FOIN")
 
 
@@ -219,7 +220,7 @@ def test_should_raise_invalid_vache_exception_given_lait_production_exceeds_prod
     panse = 1.0 / VacheALait.RENDEMENT_LAIT
     vache.brouter(panse)
 
-    with pytest.raises(exception):
+    with pytest.raises(InvalidVacheException):
         vache.ruminer()
 
 
@@ -246,5 +247,28 @@ def test_should_raise_invalid_vache_exception_given_production_max_reached_when_
     # Act / Assert
     vache.brouter(0.1)
 
-    with pytest.raises(exception):
+    with pytest.raises(InvalidVacheException):
         vache.ruminer()
+
+def test_should_include_milk_fields_in_str_given_new_vache_a_lait():
+    # Arrange
+    vache = VacheALait(petit_nom="Lola", poids=500.0, age=5)
+
+    # Act
+    s = str(vache)
+
+    # Assert (1 assertion métier)
+    assert "Lait disponible : 0.0 L" in s
+
+def test_should_reflect_milk_values_in_str_given_ruminer_and_traire():
+    # Arrange
+    vache = VacheALait(petit_nom="Lola", poids=500.0, age=5)
+    vache.brouter(10.0)
+    vache.ruminer()      # produit 11.0 L
+    vache.traire(3.0)    # reste 8.0 L, total trait 3.0 L
+
+    # Act
+    s = str(vache)
+
+    # Assert (1 assertion métier)
+    assert "Lait total trait : 3.0 L" in s

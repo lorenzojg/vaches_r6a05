@@ -1,6 +1,6 @@
 import pytest
 
-from vaches.exceptions.exception import InvalidVacheException
+from vaches.exception import InvalidVacheException
 from vaches.vache import Vache
 
 
@@ -149,7 +149,6 @@ def test_should_raise_invalid_vache_exception_given_empty_panse_when_ruminer():
     vache = Vache(petit_nom="Marguerite", poids=450.0, age=5)
 
     # Act / Assert
-    assert vache._panse == 0.0
     with pytest.raises(InvalidVacheException):
         vache.ruminer()
 
