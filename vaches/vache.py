@@ -4,13 +4,14 @@ from vaches.nourriture.TypeNourriture import TypeNourriture
 class Vache :
 
     AGE_MAX = int(25)
+    AGE_NAISSANCE = int(0)
     POIDS_MAX = float(1000.0)
     PANSE_MAX = float(50.0)
     POIDS_MIN_PANSE = float(2.0)
     RENDEMENT_RUMINATION = float(0.25)
     NEXT_ID = int(1)
 
-    def __init__(self, petit_nom:str=None, poids:float=None, age:int=None): # type: ignore
+    def __init__(self, petit_nom:str=None, poids:float=None): # type: ignore
         if petit_nom == None or petit_nom == "" :
             raise InvalidVacheException("Le petit nom de la vache ne peut pas être vide ou None.")
         else :
@@ -23,16 +24,14 @@ class Vache :
             if not is_correct_name :
                 raise InvalidVacheException("Le petit nom de la vache doit contenir au moins un caractère autre que les espaces, les tabulations ou les sauts de ligne.")
 
-        if age < 0 or age > Vache.AGE_MAX :
-            raise InvalidVacheException("Age de la vache doit être compris entre 0 et " + str(Vache.AGE_MAX) + " ans.")
-        elif poids < 0 :
+        if poids < 0 :
             raise InvalidVacheException("Poids de la vache doit être positif.")
     
         self._id = Vache.NEXT_ID
         Vache.NEXT_ID += 1
         self._petit_nom = petit_nom
         self._poids = poids
-        self._age = age
+        self._age = Vache.AGE_NAISSANCE
         self._panse = float(0)
         return
     
