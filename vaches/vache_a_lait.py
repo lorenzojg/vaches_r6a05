@@ -13,17 +13,18 @@ class VacheALait(Vache):
         self._lait_total_traite = float(0)
     
     def __str__(self) -> str:
-        return super().__str__() + "\nLait disponible :" + str(self._lait_disponible) + " L\nLait total produit : " + str(self._lait_total_produit) + " litres\nLait total traité : " + str(self._lait_traite) + " litres"
+        return super().__str__() + "\nLait disponible : " + str(self._lait_disponible) + " L\nLait total produit : " + str(self._lait_total_produit) + " L\nLait total trait : " + str(self._lait_total_traite) + " L"
     
-    def _calculer_lait(self, panse: float) -> float:
-        lait_produit = panse * VacheALait.RENDEMENT_LAIT
-
-        if self._lait_disponible + lait_produit >= VacheALait.PRODUCTION_LAIT_MAX :
-            lait_produit = VacheALait.PRODUCTION_LAIT_MAX - self._lait_disponible
-        
+    def _calculer_lait(self, panse: float = None) -> float: # type: ignore
+        if panse is not None :
+            lait_produit = panse * VacheALait.RENDEMENT_LAIT
+        else :
+            raise InvalidVacheException
         return lait_produit
-       
+
     def _stocker_lait(self, quantite_lait: float) -> None:
+        if quantite_lait + self._lait_disponible > VacheALait.PRODUCTION_LAIT_MAX :
+             raise InvalidVacheException("Impossible de stocker le lait : la capacité maximale de production de lait a été atteinte.")
         self._lait_total_produit += quantite_lait
         self._lait_disponible += quantite_lait
 

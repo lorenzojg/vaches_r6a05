@@ -1,5 +1,5 @@
 from vaches.exception import InvalidVacheException
-from nourriture.TypeNourriture import TypeNourriture
+from vaches.nourriture.TypeNourriture import TypeNourriture
 
 class Vache :
 
@@ -70,7 +70,7 @@ class Vache :
 
 
     # Hooks 
-    def _calculer_lait(self,panse:float) -> float :
+    def _calculer_lait(self,panse:float = None) -> float : # type: ignore
         return 0.0
 
     def _stocker_lait(self,quantite_lait:float) -> None :
